@@ -1,335 +1,40 @@
 <!DOCTYPE html>
 <html lang="hu">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>PSKING World - Online & Offline Játék</title>
-  <style>
-    :root {
-      --bg: #0f1724;
-      --accent: #06b6d4;
-      --accent-dark: #028299;
-      --text-light: #e6eef6;
-      --btn-radius: 14px;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-    body {
-      margin: 0; padding: 20px;
-      background: linear-gradient(180deg, #071022 0%, var(--bg) 100%);
-      color: var(--text-light);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    h1 {
-      font-size: 2.8rem;
-      margin: 30px 0 20px 0;
-      background: linear-gradient(135deg, var(--accent), #8b5cf6);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .nav-buttons {
-      margin-bottom: 30px;
-    }
-    .nav-buttons button {
-      background: var(--accent);
-      border: none;
-      color: #022;
-      font-weight: 700;
-      font-size: 1.4rem;
-      padding: 14px 30px;
-      border-radius: var(--btn-radius);
-      cursor: pointer;
-      margin: 0 12px;
-      box-shadow: 0 6px 18px rgba(11,20,30,0.6);
-      transition: background 0.3s ease;
-    }
-    .nav-buttons button:hover {
-      background: var(--accent-dark);
-      color: #fff;
-    }
-    .section {
-      width: 100%;
-      max-width: 540px;
-      background: #022131;
-      border-radius: var(--btn-radius);
-      padding: 20px;
-      box-sizing: border-box;
-      display: none;
-      color: var(--text-light);
-    }
-    .active {
-      display: block;
-    }
-    /* X kör játék stílus */
-    #xkorGame {
-      font-size: 1.4rem;
-      text-align: center;
-    }
-    #xkorCount {
-      font-size: 3rem;
-      margin: 20px 0;
-    }
-    #xkorBtn {
-      background: var(--accent);
-      border: none;
-      color: #022;
-      font-weight: 700;
-      font-size: 1.6rem;
-      padding: 12px 20px;
-      border-radius: var(--btn-radius);
-      cursor: pointer;
-      box-shadow: 0 4px 12px rgba(11,20,30,0.5);
-      transition: background 0.3s ease;
-    }
-    #xkorBtn:hover {
-      background: var(--accent-dark);
-      color: #fff;
-    }
-    #xkorMsg {
-      margin-top: 15px;
-      font-weight: 700;
-    }
-    /* Autós játék stílus */
-    #autoGame {
-      position: relative;
-      width: 100%;
-      height: 320px;
-      background: #01101f;
-      overflow: hidden;
-      border-radius: var(--btn-radius);
-      margin-top: 20px;
-    }
-    #car {
-      position: absolute;
-      bottom: 10px;
-      left: calc(50% - 25px);
-      width: 50px;
-      height: 100px;
-      background: linear-gradient(45deg, #06b6d4, #028299);
-      border-radius: 12px;
-      transition: left 0.1s;
-    }
-    #road {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%;
-      height: 100%;
-      background: repeating-linear-gradient(
-        to bottom,
-        #333,
-        #333 20px,
-        #444 20px,
-        #444 40px
-      );
-    }
-    .obstacle {
-      position: absolute;
-      width: 50px;
-      height: 50px;
-      background: #e63946;
-      border-radius: 8px;
-      top: -60px;
-      animation: fall 3s linear infinite;
-    }
-    @keyframes fall {
-      0% { top: -60px; }
-      100% { top: 380px; }
-    }
-    #score {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      font-weight: 700;
-      color: var(--accent);
-      font-size: 1.4rem;
-      z-index: 10;
-    }
-    /* Online regisztráció stílus */
-    #onlineLogin {
-      max-width: 400px;
-      margin: 0 auto;
-    }
-    #onlineLogin label {
-      display: block;
-      margin: 10px 0 5px 0;
-      font-weight: 700;
-    }
-    #onlineLogin input {
-      width: 100%;
-      padding: 10px;
-      border-radius: 10px;
-      border: none;
-      font-size: 1rem;
-    }
-    #onlineLogin button {
-      margin-top: 15px;
-      width: 100%;
-      padding: 12px;
-      background: var(--accent);
-      color: #022;
-      font-weight: 700;
-      border: none;
-      border-radius: 14px;
-      cursor: pointer;
-      font-size: 1.3rem;
-      box-shadow: 0 4px 12px rgba(11,20,30,0.5);
-      transition: background 0.3s ease;
-    }
-    #onlineLogin button:hover {
-      background: var(--accent-dark);
-      color: #fff;
-    }
-    #errorMsg {
-      color: #e63946;
-      margin-top: 8px;
-      font-weight: 700;
-    }
-    /* Online játék menü */
-    #onlinePlay {
-      color: var(--text-light);
-    }
-    #onlineHeader {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-    #onlineHeader h2 {
-      margin: 0;
-      font-size: 1.8rem;
-      background: linear-gradient(135deg, var(--accent), #8b5cf6);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    #playerCountBox {
-      background: var(--accent);
-      color: #022;
-      font-weight: 700;
-      padding: 6px 14px;
-      border-radius: 12px;
-      min-width: 120px;
-      text-align: center;
-    }
-    #gameSearch {
-      margin-bottom: 15px;
-      padding: 10px;
-      width: 100%;
-      font-size: 1rem;
-      border-radius: 12px;
-      border: none;
-      outline: none;
-    }
-    #gameList {
-      list-style: none;
-      padding: 0;
-      max-height: 150px;
-      overflow-y: auto;
-      border-radius: 12px;
-      background: #022131;
-      box-shadow: inset 0 0 6px #06b6d4;
-    }
-    #gameList li {
-      padding: 10px 15px;
-      border-bottom: 1px solid #06b6d4;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-    #gameList li:hover {
-      background: #06b6d4;
-      color: #022;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PSKING World teszt</title>
+<style>
+  body { font-family: Arial, sans-serif; padding: 20px; background: #0f1724; color: white; text-align: center; }
+  button { margin: 10px; padding: 10px 20px; font-size: 18px; cursor: pointer; }
+  .section { display: none; margin-top: 30px; }
+  .active { display: block; }
+  #offline { background: #022131; padding: 20px; border-radius: 10px; }
+  #online { background: #034155; padding: 20px; border-radius: 10px; }
+</style>
 </head>
 <body>
-  <h1>PSKING World</h1>
-  <div class="nav-buttons">
-    <button onclick="showSection('offline')">Offline játékok</button>
-    <button onclick="showSection('onlineLogin')">Online játék</button>
-  </div>
 
-  <!-- OFFLINE játékok -->
-  <section id="offline" class="section">
-    <h2>Offline játékok</h2>
-    <div id="xkorGame">
-      <p>Kattints a gombra, hogy növeld a számot:</p>
-      <div id="xkorCount">0</div>
-      <button id="xkorBtn">X Kör növelése</button>
-      <div id="xkorMsg"></div>
-    </div>
-    <div id="autoGame">
-      <div id="road"></div>
-      <div id="car"></div>
-      <div id="score">Pont: 0</div>
-    </div>
-  </section>
+<h1>PSKING World teszt</h1>
+<button onclick="show('offline')">Offline játékok</button>
+<button onclick="show('online')">Online játék</button>
 
-  <!-- ONLINE regisztráció -->
-  <section id="onlineLogin" class="section">
-    <h2>Jelentkezz be az Online Play-be</h2>
-    <form id="loginForm">
-      <label for="email">Email cím:</label>
-      <input type="email" id="email" required />
-      <label for="username">Felhasználónév:</label>
-      <input type="text" id="username" required />
-      <button type="submit">Belépés</button>
-      <div id="errorMsg"></div>
-    </form>
-  </section>
+<div id="offline" class="section active">
+  <h2>Offline játékok</h2>
+  <p>Itt az offline játékok lesznek.</p>
+</div>
 
-  <!-- ONLINE játék menü -->
-  <section id="onlinePlay" class="section">
-    <div id="onlineHeader">
-      <h2>PSKING Online Play</h2>
-      <div id="playerCountBox">Online játékosok: 0</div>
-    </div>
-    <input type="text" id="gameSearch" placeholder="Játék keresése..." />
-    <ul id="gameList">
-      <li>Autós verseny</li>
-      <li>X Kör játék</li>
-      <li>Puzzle játék</li>
-      <li>Memória játék</li>
-      <li>Stratégia játék</li>
-    </ul>
-  </section>
+<div id="online" class="section">
+  <h2>Online játék</h2>
+  <p>Itt az online játék bejelentkezés lesz.</p>
+</div>
 
-  <script>
-    function showSection(id) {
-      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
-    }
+<script>
+  function show(id) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+</script>
 
-    // Alapból offline legyen látható
-    showSection('offline');
-
-    // X Kör játék logika
-    let xkorCount = 0;
-    document.getElementById('xkorBtn').addEventListener('click', () => {
-      xkorCount++;
-      document.getElementById('xkorCount').textContent = xkorCount;
-      if (xkorCount % 5 === 0) {
-        document.getElementById('xkorMsg').textContent = 'Szép munka, elérted a ' + xkorCount + ' pontot!';
-      } else {
-        document.getElementById('xkorMsg').textContent = '';
-      }
-    });
-
-    // Egyszerű autós játék - csak animált akadályok és pontszám
-    const car = document.getElementById('car');
-    const road = document.getElementById('road');
-    const scoreElem = document.getElementById('score');
-    let score = 0;
-    let carPosition = 50; // % from left
-    let obstacles = [];
-
-    function createObstacle() {
-      const obs = document.createElement('div');
-      obs.classList.add('obstacle');
-      obs.style.left = Math.floor(Math.random() * 90) + '%';
-      road.appendChild(obs);
-      obstacles.push(obs);
-    }
-
-    function moveObstacles() {
-      obstacles.forEach((
+</body>
+</html>
