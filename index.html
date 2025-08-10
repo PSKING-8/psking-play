@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>PSKING World teszt</title>
+<title>PSKING World - Offline játékok</title>
 <style>
   body { font-family: Arial, sans-serif; padding: 20px; background: #0f1724; color: white; text-align: center; }
   button { margin: 10px; padding: 10px 20px; font-size: 18px; cursor: pointer; }
@@ -11,17 +11,22 @@
   .active { display: block; }
   #offline { background: #022131; padding: 20px; border-radius: 10px; }
   #online { background: #034155; padding: 20px; border-radius: 10px; }
+  #xkorCount { font-size: 3rem; margin: 20px 0; }
+  #xkorBtn { font-size: 1.6rem; padding: 10px 20px; cursor: pointer; border-radius: 10px; border: none; background: #06b6d4; color: #022; }
+  #xkorBtn:hover { background: #028299; color: white; }
 </style>
 </head>
 <body>
 
-<h1>PSKING World teszt</h1>
+<h1>PSKING World</h1>
 <button onclick="show('offline')">Offline játékok</button>
 <button onclick="show('online')">Online játék</button>
 
 <div id="offline" class="section active">
   <h2>Offline játékok</h2>
-  <p>Itt az offline játékok lesznek.</p>
+  <p>Kattints a gombra, hogy növeld az X Kör számot:</p>
+  <div id="xkorCount">0</div>
+  <button id="xkorBtn">X Kör növelése</button>
 </div>
 
 <div id="online" class="section">
@@ -34,6 +39,13 @@
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
   }
+  show('offline');
+
+  let xkorCount = 0;
+  document.getElementById('xkorBtn').addEventListener('click', () => {
+    xkorCount++;
+    document.getElementById('xkorCount').textContent = xkorCount;
+  });
 </script>
 
 </body>
