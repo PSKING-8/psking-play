@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Welcome to PSKING world!</title>
+  <style>
+    :root {
+      --bg: #0f1724;
+      --accent: #06b6d4;
+      --accent-dark: #028299;
+      --text-light: #e6eef6;
+      --btn-radius: 14px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, #071022 0%, var(--bg) 100%);
+      color: var(--text-light);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+      padding: 20px;
+    }
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, var(--accent), #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    p {
+      font-size: 1.2rem;
+      margin-bottom: 40px;
+      color: #9ca3af;
+    }
+    .btn-container {
+      display: flex;
+      gap: 32px;
+      flex-wrap: wrap;
+      justify-content: center;
+      max-width: 600px;
+      width: 100%;
+    }
+    button {
+      background: var(--accent);
+      border: none;
+      color: #022;
+      font-weight: 700;
+      font-size: 1.5rem;
+      padding: 20px 40px;
+      border-radius: var(--btn-radius);
+      cursor: pointer;
+      box-shadow: 0 6px 18px rgba(11, 20, 30, 0.6);
+      flex: 1 1 250px;
+      transition: background 0.3s ease;
+    }
+    button:hover {
+      background: var(--accent-dark);
+      color: #fff;
+    }
+    footer {
+      margin-top: 60px;
+      font-size: 0.9rem;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <h1>Welcome to PSKING world!</h1>
+  <p>Válaszd ki, hogyan szeretnél játszani:</p>
+  <div class="btn-container">
+    <button id="onlineBtn">PSKING Online Play</button>
+    <button id="offlineBtn">PSKING Offline Play</button>
+  </div>
+
+  <footer>© 2025 PSKING — Minden jog fenntartva</footer>
+
+  <script>
+    document.getElementById('onlineBtn').addEventListener('click', () => {
+      alert('PSKING Online Play modul hamarosan érkezik!');
+      // Itt később át lehet irányítani az online játékok oldalára
+    });
+    document.getElementById('offlineBtn').addEventListener('click', () => {
+      alert('PSKING Offline Play modul hamarosan érkezik!');
+      // Itt később át lehet irányítani az offline játékok oldalára
+    });
+  </script>
+</body>
+</html>
