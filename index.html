@@ -23,6 +23,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      overflow-x: hidden;
     }
     h1 {
       font-size: 2.8rem;
@@ -56,14 +57,12 @@
       background: var(--accent-dark);
       color: #fff;
     }
-    iframe {
+    #gameCanvas {
       margin-top: 40px;
-      width: 100%;
-      max-width: 500px;
-      height: 320px;
       border: 3px solid var(--accent);
       border-radius: var(--btn-radius);
       background: #01101f;
+      display: none;
     }
     footer {
       margin-top: auto;
@@ -80,26 +79,185 @@
     <button class="game-btn" onclick="startGame(2)">Platformer</button>
     <button class="game-btn" onclick="startGame(3)">Autós Ügyességi</button>
   </div>
-  <iframe id="gameFrame" src="" title="Játék" style="display:none;"></iframe>
+
+  <canvas id="gameCanvas" width="600" height="400"></canvas>
 
   <footer>© 2025 PSKING_DAVID — Minden jog fenntartva</footer>
 
-  <script>
-    function startGame(gameNum) {
-      alert('Elindítottad a játékot: ' + gameNum);
-      // Itt lehet majd betenni a tényleges játékok URL-jét vagy kódját
-      /*
-      const gameFrame = document.getElementById('gameFrame');
-      gameFrame.style.display = 'block';
-      if(gameNum === 1) {
-        gameFrame.src = 'raketas_jatek.html';
-      } else if(gameNum === 2) {
-        gameFrame.src = 'platformer.html';
-      } else if(gameNum === 3) {
-        gameFrame.src = 'autos_jatek.html';
-      }
-      */
+<script>
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+
+  let currentGame = 0;
+  let animationFrameId;
+
+  // --- Rakétás lövöldözős játék ---
+  function raketasJatek() {
+    canvas.style.display = 'block';
+    let raketaX = 280, raketaY = 350;
+    let raketaSpeed = 5;
+    let raketak = [];
+    let autok = [];
+    let pont = 0;
+
+    // autók létrehozása (egyszerű téglalapok)
+    for(let i=0; i<5; i++){
+      autok.push({x: i*120, y: 50 + Math.random()*150, width: 60, height: 30});
     }
-  </script>
-</body>
-</html>
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      // rakéta
+      ctx.fillStyle = 'orange';
+      ctx.fillRect(raketaX, raketaY, 40, 20);
+      // autók
+      ctx.fillStyle = 'red';
+      autok.forEach(a => {
+        ctx.fillRect(a.x, a.y, a.width, a.height);
+      });
+      // rakéták (lövedékek)
+      ctx.fillStyle = 'yellow';
+      raketak.forEach((r, i) => {
+        ctx.fillRect(r.x, r.y, 5, 10);
+        r.y -= 7;
+        // ütközés az autókkal
+        autok.forEach((a,j) => {
+          if (r.x < a.x + a.width && r.x + 5 > a.x && r.y < a.y + a.height && r.y + 10 > a.y){
+            autok.splice(j,1);
+            raketak.splice(i,1);
+            pont++;
+          }
+        });
+      });
+      // pontok kirajzolása
+      ctx.fillStyle = 'white';
+      ctx.font = '20px Arial';
+      ctx.fillText('Pontok: ' + pont, 10, 30);
+    }
+
+    function loop() {
+      draw();
+      animationFrameId = requestAnimationFrame(loop);
+    }
+
+    // irányítás
+    window.onkeydown = function(e) {
+      if(currentGame !== 1) return;
+      if(e.key === 'ArrowLeft') {
+        raketaX = Math.max(0, raketaX - raketaSpeed);
+      } else if(e.key === 'ArrowRight') {
+        raketaX = Math.min(canvas.width - 40, raketaX + raketaSpeed);
+      } else if(e.key === ' ') {
+        raketak.push({x: raketaX + 18, y: raketaY});
+      }
+    }
+
+    pont = 0;
+    raketak = [];
+    autok = [];
+    for(let i=0; i<5; i++){
+      autok.push({x: i*120, y: 50 + Math.random()*150, width: 60, height: 30});
+    }
+    loop();
+  }
+
+  // --- Platformer játék ---
+  function platformerJatek() {
+    canvas.style.display = 'block';
+
+    const player = {
+      x: 50,
+      y: 350,
+      width: 30,
+      height: 30,
+      color: 'cyan',
+      dy: 0,
+      onGround: false,
+    };
+
+    const gravity = 0.7;
+    const jumpPower = -12;
+
+    const platform = {x: 0, y: 380, width: 600, height: 20};
+
+    let keys = {};
+
+    window.onkeydown = function(e) {
+      if(currentGame !== 2) return;
+      keys[e.key] = true;
+      if(e.key === ' ' && player.onGround){
+        player.dy = jumpPower;
+        player.onGround = false;
+      }
+    }
+    window.onkeyup = function(e) {
+      if(currentGame !== 2) return;
+      keys[e.key] = false;
+    }
+
+    function update() {
+      // mozgás balra jobbra
+      if(keys['ArrowLeft']) player.x -= 5;
+      if(keys['ArrowRight']) player.x += 5;
+
+      // gravitáció
+      player.dy += gravity;
+      player.y += player.dy;
+
+      // platformra esés
+      if(player.y + player.height > platform.y) {
+        player.y = platform.y - player.height;
+        player.dy = 0;
+        player.onGround = true;
+      } else {
+        player.onGround = false;
+      }
+
+      // képernyő szélén maradás
+      player.x = Math.max(0, Math.min(canvas.width - player.width, player.x));
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      // platform
+      ctx.fillStyle = 'green';
+      ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
+      // játékos
+      ctx.fillStyle = player.color;
+      ctx.fillRect(player.x, player.y, player.width, player.height);
+      // instrukció
+      ctx.fillStyle = 'white';
+      ctx.font = '18px Arial';
+      ctx.fillText('Használd az nyilakat és a SPACE-t ugráshoz!', 10, 30);
+    }
+
+    function loop() {
+      update();
+      draw();
+      animationFrameId = requestAnimationFrame(loop);
+    }
+
+    loop();
+  }
+
+  // --- Autós ügyességi játék ---
+  function autosJatek() {
+    canvas.style.display = 'block';
+
+    const player = {
+      x: 270,
+      y: 350,
+      width: 60,
+      height: 30,
+      color: 'lime',
+      speed: 7,
+    };
+
+    let obstacles = [];
+    let frameCount = 0;
+    let score = 0;
+
+    window.onkeydown = function(e) {
+      if(currentGame !== 3) return;
+      if(e.key === 'ArrowLeft') {
+        player.x = Math.max
