@@ -91,6 +91,10 @@
   let currentGame = 0;
   let animationFrameId;
 
+  function clearCanvas() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+
   // --- Rakétás lövöldözős játék ---
   function raketasJatek() {
     canvas.style.display = 'block';
@@ -101,12 +105,15 @@
     let pont = 0;
 
     // autók létrehozása (egyszerű téglalapok)
-    for(let i=0; i<5; i++){
-      autok.push({x: i*120, y: 50 + Math.random()*150, width: 60, height: 30});
+    function initAutok() {
+      autok = [];
+      for(let i=0; i<5; i++){
+        autok.push({x: i*120, y: 50 + Math.random()*150, width: 60, height: 30});
+      }
     }
 
     function draw() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      clearCanvas();
       // rakéta
       ctx.fillStyle = 'orange';
       ctx.fillRect(raketaX, raketaY, 40, 20);
@@ -154,10 +161,7 @@
 
     pont = 0;
     raketak = [];
-    autok = [];
-    for(let i=0; i<5; i++){
-      autok.push({x: i*120, y: 50 + Math.random()*150, width: 60, height: 30});
-    }
+    initAutok();
     loop();
   }
 
@@ -196,6 +200,7 @@
     }
 
     function update() {
+      if(currentGame !== 2) return;
       // mozgás balra jobbra
       if(keys['ArrowLeft']) player.x -= 5;
       if(keys['ArrowRight']) player.x += 5;
@@ -218,7 +223,7 @@
     }
 
     function draw() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      clearCanvas();
       // platform
       ctx.fillStyle = 'green';
       ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
@@ -232,6 +237,7 @@
     }
 
     function loop() {
+      if(currentGame !== 2) return;
       update();
       draw();
       animationFrameId = requestAnimationFrame(loop);
@@ -260,4 +266,103 @@
     window.onkeydown = function(e) {
       if(currentGame !== 3) return;
       if(e.key === 'ArrowLeft') {
-        player.x = Math.max
+        player.x = Math.max(0, player.x - player.speed);
+      } else if(e.key === 'ArrowRight') {
+        player.x = Math.min(canvas.width - player.width, player.x + player.speed);
+      }
+    }
+
+    function createObstacle() {
+      const size = 40;
+      const x = Math.random() * (canvas.width - size);
+      obstacles.push({x, y: -size, width: size, height: size});
+    }
+
+    function update() {
+      frameCount++;
+      if(frameCount % 60 === 0) {
+        createObstacle();
+      }
+
+      obstacles.forEach(o => {
+        o.y += 5;
+      });
+
+      // akadályok törlése ha kimegy a vászonról
+      obstacles = obstacles.filter(o => o.y < canvas.height);
+
+      // ütközés ellenőrzése
+      for(let o of obstacles) {
+        if(player.x < o.x + o.width &&
+           player.x + player.width > o.x &&
+           player.y < o.y + o.height &&
+           player.y + player.height > o.y) {
+             // játék vége, újraindítás
+             alert('Ütközés! A pontszámod: ' + score);
+             obstacles = [];
+             score = 0;
+             frameCount = 0;
+             break;
+        }
+      }
+
+      // pontszám növelése
+      score++;
+    }
+
+    function draw() {
+      clearCanvas();
+      // játékos
+      ctx.fillStyle = player.color;
+      ctx.fillRect(player.x, player.y, player.width, player.height);
+      // akadályok
+      ctx.fillStyle = 'red';
+      obstacles.forEach(o => {
+        ctx.fillRect(o.x, o.y, o.width, o.height);
+      });
+      // pontszám
+      ctx.fillStyle = 'white';
+      ctx.font = '20px Arial';
+      ctx.fillText('Pont: ' + score, 10, 30);
+    }
+
+    function loop() {
+      if(currentGame !== 3) return;
+      update();
+      draw();
+      animationFrameId = requestAnimationFrame(loop);
+    }
+
+    loop();
+  }
+
+  function stopGame() {
+    cancelAnimationFrame(animationFrameId);
+    clearCanvas();
+    canvas.style.display = 'none';
+    window.onkeydown = null;
+    window.onkeyup = null;
+  }
+
+  function startGame(gameNum) {
+    if(animationFrameId) cancelAnimationFrame(animationFrameId);
+    currentGame = gameNum;
+    clearCanvas();
+    switch(gameNum) {
+      case 1:
+        raketasJatek();
+        break;
+      case 2:
+        platformerJatek();
+        break;
+      case 3:
+        autosJatek();
+        break;
+      default:
+        stopGame();
+    }
+  }
+</script>
+</body>
+</html>
+
