@@ -1,369 +1,291 @@
 
-
-<!DOCTYPE html>
+<!doctype html>
 <html lang="hu">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>PSKING_DAVID Play</title>
-  <style>
-    :root {
-      --bg: #0f1724;
-      --accent: #06b6d4;
-      --accent-dark: #028299;
-      --text-light: #e6eef6;
-      --btn-radius: 14px;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-    body {
-      margin: 0;
-      background: linear-gradient(180deg, #071022 0%, var(--bg) 100%);
-      color: var(--text-light);
-      text-align: center;
-      padding: 20px;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      overflow-x: hidden;
-    }
-    h1 {
-      font-size: 2.8rem;
-      margin: 30px 0 10px 0;
-      background: linear-gradient(135deg, var(--accent), #8b5cf6);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .game-list {
-      max-width: 400px;
-      width: 100%;
-      margin-top: 30px;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-    .game-btn {
-      background: var(--accent);
-      border: none;
-      color: #022;
-      font-weight: 700;
-      font-size: 1.4rem;
-      padding: 18px 0;
-      border-radius: var(--btn-radius);
-      cursor: pointer;
-      box-shadow: 0 6px 18px rgba(11, 20, 30, 0.6);
-      transition: background 0.3s ease;
-      width: 100%;
-    }
-    .game-btn:hover {
-      background: var(--accent-dark);
-      color: #fff;
-    }
-    #gameCanvas {
-      margin-top: 40px;
-      border: 3px solid var(--accent);
-      border-radius: var(--btn-radius);
-      background: #01101f;
-      display: none;
-    }
-    footer {
-      margin-top: auto;
-      margin-bottom: 20px;
-      font-size: 0.9rem;
-      color: #666;
-    }
-  </style>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>PSKING PLAY — Auto PSKING (Szebb verzió)</title>
+<script src="https://cdn.babylonjs.com/babylon.js"></script>
+<script src="https://cdn.babylonjs.com/loaders/babylon.glTF2FileLoader.min.js"></script>
+<style>
+  :root{--bg:#0b1220;--panel:#0f1724;--accent:#ffcc00}
+  html,body{height:100%;margin:0;font-family:Inter,Segoe UI,Arial;background:linear-gradient(180deg,#0b1220,#102033);color:#eef;display:flex;align-items:center;justify-content:center}
+  .wrap{width:100%;max-width:1100px;margin:20px;padding:18px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;box-shadow:0 6px 30px rgba(0,0,0,0.6)}
+  header{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+  header h1{margin:0;font-size:20px;letter-spacing:1px}
+  .cols{display:flex;gap:18px}
+  .panel{flex:1;min-width:280px;background:rgba(255,255,255,0.02);padding:14px;border-radius:10px}
+  label{display:block;margin:10px 0 6px;font-size:14px;color:#cfe}
+  input[type=text], input[type=number]{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color: #eef}
+  button{margin-top:12px;padding:10px 14px;border-radius:8px;border:0;background:var(--accent);color:#081018;font-weight:700;cursor:pointer}
+  #menu{display:none}
+  #gameContainer{display:none;position:relative;height:600px;border-radius:10px;overflow:hidden;margin-top:12px}
+  canvas{width:100%;height:100%;display:block}
+  .hud{position:absolute;left:12px;top:12px;background:rgba(0,0,0,0.35);padding:8px 10px;border-radius:8px}
+  .hint{font-size:13px;opacity:0.9}
+  .small{font-size:13px;color:#cfe;opacity:0.95}
+</style>
 </head>
 <body>
-  <h1>PSKING_DAVID Play - Válassz játékot</h1>
-  <div class="game-list">
-    <button class="game-btn" onclick="startGame(1)">Rakétás Lövöldözős</button>
-    <button class="game-btn" onclick="startGame(2)">Platformer</button>
-    <button class="game-btn" onclick="startGame(3)">Autós Ügyességi</button>
+<div class="wrap">
+  <header>
+    <img src="" alt="" style="width:48px;height:48px;border-radius:8px;background:linear-gradient(90deg,#222,#111)"/>
+    <h1>PSKING PLAY — Auto PSKING (Szebb verzió)</h1>
+  </header>
+
+  <div class="cols">
+    <div class="panel" id="loginPanel">
+      <h2>Belépés</h2>
+      <label for="playerName">Játékos név</label>
+      <input id="playerName" type="text" placeholder="Írd ide a neved (pl. PSKING_DAVID)"/>
+      <label for="playerAge">Életkor</label>
+      <input id="playerAge" type="number" min="6" max="99" placeholder="Életkor"/>
+      <div style="display:flex;gap:8px;">
+        <button id="enterBtn">Belépés</button>
+        <button id="clearBtn" style="background:#888;color:#fff">Törlés</button>
+      </div>
+      <p class="small">A név és életkor elmentődik a böngészőben, hogy legközelebb gyorsabban beléphess.</p>
+    </div>
+
+    <div class="panel" id="menu">
+      <h2>Főmenü</h2>
+      <p class="small" id="welcomeText"></p>
+      <button id="startGameBtn">Auto PSKING — Indítás</button>
+      <p class="hint">Játékmenet: nyilak vagy WASD a vezetéshez. Cél: kapd el a piros "tolvaj" autót!</p>
+    </div>
   </div>
 
-  <canvas id="gameCanvas" width="600" height="400"></canvas>
+  <div id="gameContainer">
+    <div class="hud" id="hud">
+      <div><strong id="hudName"></strong> <span class="small" id="hudAge"></span></div>
+      <div style="margin-top:6px">Pontok: <span id="score">0</span></div>
+      <div style="margin-top:6px" class="small">Gáz: <span id="speedDisplay">0</span></div>
+    </div>
+    <canvas id="renderCanvas"></canvas>
+  </div>
 
-  <footer>© 2025 PSKING_DAVID — Minden jog fenntartva</footer>
+</div>
 
 <script>
-  const canvas = document.getElementById('gameCanvas');
-  const ctx = canvas.getContext('2d');
+/* --- UI logic --- */
+const enterBtn = document.getElementById('enterBtn');
+const clearBtn = document.getElementById('clearBtn');
+const menu = document.getElementById('menu');
+const loginPanel = document.getElementById('loginPanel');
+const startGameBtn = document.getElementById('startGameBtn');
+const playerNameInput = document.getElementById('playerName');
+const playerAgeInput = document.getElementById('playerAge');
+const welcomeText = document.getElementById('welcomeText');
+const hudName = document.getElementById('hudName');
+const hudAge = document.getElementById('hudAge');
+const scoreEl = document.getElementById('score');
+const speedDisplay = document.getElementById('speedDisplay');
 
-  let currentGame = 0;
-  let animationFrameId;
+function loadSaved(){
+  const n = localStorage.getItem('psking_name');
+  const a = localStorage.getItem('psking_age');
+  if(n) playerNameInput.value = n;
+  if(a) playerAgeInput.value = a;
+}
+loadSaved();
 
-  function clearCanvas() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+enterBtn.onclick = () => {
+  const name = playerNameInput.value.trim();
+  const age = parseInt(playerAgeInput.value);
+  if(!name || !age || age < 6 || age > 120){
+    alert('Adj meg egy érvényes nevet és életkort (6-120).');
+    return;
+  }
+  localStorage.setItem('psking_name', name);
+  localStorage.setItem('psking_age', age);
+  welcomeText.textContent = `Üdv, ${name}! Életkor: ${age}. Válassz játékot a menüből.`;
+  hudName.textContent = name;
+  hudAge.textContent = `(${age} év)`;
+  loginPanel.style.display = 'none';
+  menu.style.display = 'block';
+};
+
+clearBtn.onclick = () => {
+  localStorage.removeItem('psking_name');
+  localStorage.removeItem('psking_age');
+  playerNameInput.value = '';
+  playerAgeInput.value = '';
+  alert('Adatok törölve.');
+};
+
+/* --- Babylon.js játék --- */
+startGameBtn.onclick = startGame;
+
+let engine, scene, camera, player, inputMap = {}, score = 0;
+let speed = 0;
+function startGame(){
+  document.getElementById('gameContainer').style.display = 'block';
+  menu.style.display = 'none';
+  const canvas = document.getElementById('renderCanvas');
+  engine = new BABYLON.Engine(canvas, true, {preserveDrawingBuffer:true, stencil:true});
+  scene = new BABYLON.Scene(engine);
+  scene.clearColor = new BABYLON.Color3(0.53,0.78,0.92); // világoskék ég
+
+  // Camera
+  camera = new BABYLON.UniversalCamera('cam', new BABYLON.Vector3(0,5,-12), scene);
+  camera.attachControl(canvas, true);
+  camera.speed = 0.5;
+  camera.minZ = 0.1;
+
+  // Light
+  const sun = new BABYLON.DirectionalLight("sun", new BABYLON.Vector3(-0.5,-1,0.3), scene);
+  sun.intensity = 1.2;
+
+  // Ground / road
+  const ground = BABYLON.MeshBuilder.CreateGround('g', {width:200, height:40}, scene);
+  ground.position.z = 100;
+  const roadMat = new BABYLON.StandardMaterial('roadMat', scene);
+  roadMat.diffuseColor = new BABYLON.Color3(0.08,0.08,0.08);
+  ground.material = roadMat;
+
+  // Road stripes
+  for(let i=0;i<40;i++){
+    const stripe = BABYLON.MeshBuilder.CreateBox('s'+i,{width:1,height:0.1,depth:4},scene);
+    stripe.position = new BABYLON.Vector3(0,0.01,i*5);
+    const sm = new BABYLON.StandardMaterial('sm'+i,scene);
+    sm.emissiveColor = new BABYLON.Color3(1,1,0.6);
+    stripe.material = sm;
   }
 
-  // --- Rakétás lövöldözős játék ---
-  function raketasJatek() {
-    canvas.style.display = 'block';
-    let raketaX = 280, raketaY = 350;
-    let raketaSpeed = 5;
-    let raketak = [];
-    let autok = [];
-    let pont = 0;
+  // Player car - GLB modell betöltése
+  player = new BABYLON.TransformNode("player", scene);
+  BABYLON.SceneLoader.ImportMesh("", "https://models.babylonjs.com/", "lambo_huracan.glb", scene, function(meshes) {
+    const car = meshes[0];
+    car.parent = player;
+    player.position = new BABYLON.Vector3(0,0,2);
+    car.scaling = new BABYLON.Vector3(0.04, 0.04, 0.04);
+  });
 
-    // autók létrehozása (egyszerű téglalapok)
-    function initAutok() {
-      autok = [];
-      for(let i=0; i<5; i++){
-        autok.push({x: i*120, y: 50 + Math.random()*150, width: 60, height: 30});
-      }
-    }
+  // Fák az út mellett
+  const treeMeshes = [];
+  function createTree(x,z){
+    const trunk = BABYLON.MeshBuilder.CreateCylinder("trunk",{diameter:0.3,height:2},scene);
+    trunk.position = new BABYLON.Vector3(x,1,z);
+    const trunkMat = new BABYLON.StandardMaterial("trunkMat",scene);
+    trunkMat.diffuseColor = new BABYLON.Color3(0.4,0.25,0.1);
+    trunk.material = trunkMat;
 
-    function draw() {
-      clearCanvas();
-      // rakéta
-      ctx.fillStyle = 'orange';
-      ctx.fillRect(raketaX, raketaY, 40, 20);
-      // autók
-      ctx.fillStyle = 'red';
-      autok.forEach(a => {
-        ctx.fillRect(a.x, a.y, a.width, a.height);
-      });
-      // rakéták (lövedékek)
-      ctx.fillStyle = 'yellow';
-      raketak.forEach((r, i) => {
-        ctx.fillRect(r.x, r.y, 5, 10);
-        r.y -= 7;
-        // ütközés az autókkal
-        autok.forEach((a,j) => {
-          if (r.x < a.x + a.width && r.x + 5 > a.x && r.y < a.y + a.height && r.y + 10 > a.y){
-            autok.splice(j,1);
-            raketak.splice(i,1);
-            pont++;
-          }
-        });
-      });
-      // pontok kirajzolása
-      ctx.fillStyle = 'white';
-      ctx.font = '20px Arial';
-      ctx.fillText('Pontok: ' + pont, 10, 30);
-    }
+    const leaves = BABYLON.MeshBuilder.CreateSphere("leaves",{diameter:2},scene);
+    leaves.position = new BABYLON.Vector3(x,2.8,z);
+    const leavesMat = new BABYLON.StandardMaterial("leavesMat",scene);
+    leavesMat.diffuseColor = new BABYLON.Color3(0.1,0.5,0.1);
+    leaves.material = leavesMat;
 
-    function loop() {
-      draw();
-      animationFrameId = requestAnimationFrame(loop);
-    }
-
-    // irányítás
-    window.onkeydown = function(e) {
-      if(currentGame !== 1) return;
-      if(e.key === 'ArrowLeft') {
-        raketaX = Math.max(0, raketaX - raketaSpeed);
-      } else if(e.key === 'ArrowRight') {
-        raketaX = Math.min(canvas.width - 40, raketaX + raketaSpeed);
-      } else if(e.key === ' ') {
-        raketak.push({x: raketaX + 18, y: raketaY});
-      }
-    }
-
-    pont = 0;
-    raketak = [];
-    initAutok();
-    loop();
+    treeMeshes.push(trunk, leaves);
+  }
+  for(let i=0; i<20; i++){
+    createTree(-7, i*10 + 5);
+    createTree(7, i*10 + 7);
   }
 
-  // --- Platformer játék ---
-  function platformerJatek() {
-    canvas.style.display = 'block';
-
-    const player = {
-      x: 50,
-      y: 350,
-      width: 30,
-      height: 30,
-      color: 'cyan',
-      dy: 0,
-      onGround: false,
-    };
-
-    const gravity = 0.7;
-    const jumpPower = -12;
-
-    const platform = {x: 0, y: 380, width: 600, height: 20};
-
-    let keys = {};
-
-    window.onkeydown = function(e) {
-      if(currentGame !== 2) return;
-      keys[e.key] = true;
-      if(e.key === ' ' && player.onGround){
-        player.dy = jumpPower;
-        player.onGround = false;
-      }
-    }
-    window.onkeyup = function(e) {
-      if(currentGame !== 2) return;
-      keys[e.key] = false;
-    }
-
-    function update() {
-      if(currentGame !== 2) return;
-      // mozgás balra jobbra
-      if(keys['ArrowLeft']) player.x -= 5;
-      if(keys['ArrowRight']) player.x += 5;
-
-      // gravitáció
-      player.dy += gravity;
-      player.y += player.dy;
-
-      // platformra esés
-      if(player.y + player.height > platform.y) {
-        player.y = platform.y - player.height;
-        player.dy = 0;
-        player.onGround = true;
-      } else {
-        player.onGround = false;
-      }
-
-      // képernyő szélén maradás
-      player.x = Math.max(0, Math.min(canvas.width - player.width, player.x));
-    }
-
-    function draw() {
-      clearCanvas();
-      // platform
-      ctx.fillStyle = 'green';
-      ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
-      // játékos
-      ctx.fillStyle = player.color;
-      ctx.fillRect(player.x, player.y, player.width, player.height);
-      // instrukció
-      ctx.fillStyle = 'white';
-      ctx.font = '18px Arial';
-      ctx.fillText('Használd az nyilakat és a SPACE-t ugráshoz!', 10, 30);
-    }
-
-    function loop() {
-      if(currentGame !== 2) return;
-      update();
-      draw();
-      animationFrameId = requestAnimationFrame(loop);
-    }
-
-    loop();
-  }
-
-  // --- Autós ügyességi játék ---
-  function autosJatek() {
-    canvas.style.display = 'block';
-
-    const player = {
-      x: 270,
-      y: 350,
-      width: 60,
-      height: 30,
-      color: 'lime',
-      speed: 7,
-    };
-
-    let obstacles = [];
-    let frameCount = 0;
-    let score = 0;
-
-    window.onkeydown = function(e) {
-      if(currentGame !== 3) return;
-      if(e.key === 'ArrowLeft') {
-        player.x = Math.max(0, player.x - player.speed);
-      } else if(e.key === 'ArrowRight') {
-        player.x = Math.min(canvas.width - player.width, player.x + player.speed);
-      }
-    }
-
-    function createObstacle() {
-      const size = 40;
-      const x = Math.random() * (canvas.width - size);
-      obstacles.push({x, y: -size, width: size, height: size});
-    }
-
-    function update() {
-      frameCount++;
-      if(frameCount % 60 === 0) {
-        createObstacle();
-      }
-
-      obstacles.forEach(o => {
-        o.y += 5;
-      });
-
-      // akadályok törlése ha kimegy a vászonról
-      obstacles = obstacles.filter(o => o.y < canvas.height);
-
-      // ütközés ellenőrzése
-      for(let o of obstacles) {
-        if(player.x < o.x + o.width &&
-           player.x + player.width > o.x &&
-           player.y < o.y + o.height &&
-           player.y + player.height > o.y) {
-             // játék vége, újraindítás
-             alert('Ütközés! A pontszámod: ' + score);
-             obstacles = [];
-             score = 0;
-             frameCount = 0;
-             break;
-        }
-      }
-
-      // pontszám növelése
-      score++;
-    }
-
-    function draw() {
-      clearCanvas();
-      // játékos
-      ctx.fillStyle = player.color;
-      ctx.fillRect(player.x, player.y, player.width, player.height);
-      // akadályok
-      ctx.fillStyle = 'red';
-      obstacles.forEach(o => {
-        ctx.fillRect(o.x, o.y, o.width, o.height);
-      });
-      // pontszám
-      ctx.fillStyle = 'white';
-      ctx.font = '20px Arial';
-      ctx.fillText('Pont: ' + score, 10, 30);
-    }
-
-    function loop() {
-      if(currentGame !== 3) return;
-      update();
-      draw();
-      animationFrameId = requestAnimationFrame(loop);
-    }
-
-    loop();
-  }
-
-  function stopGame() {
-    cancelAnimationFrame(animationFrameId);
-    clearCanvas();
-    canvas.style.display = 'none';
-    window.onkeydown = null;
-    window.onkeyup = null;
-  }
-
-  function startGame(gameNum) {
-    if(animationFrameId) cancelAnimationFrame(animationFrameId);
-    currentGame = gameNum;
-    clearCanvas();
-    switch(gameNum) {
-      case 1:
-        raketasJatek();
-        break;
-      case 2:
-        platformerJatek();
-        break;
-      case 3:
-        autosJatek();
-        break;
-      default:
-        stopGame();
+  // Traffic (a pár autó ami előre halad)
+  const traffic = [];
+  function spawnTraffic(){
+    for(let i=0;i<10;i++){
+      const t = BABYLON.MeshBuilder.CreateBox('t'+i,{width:1.6,height:0.6,depth:3},scene);
+      t.position = new BABYLON.Vector3((Math.random()*10-5),0.6, 40 + Math.random()*300);
+      t.rotation.y = 0;
+      const tm = new BABYLON.StandardMaterial('tm'+i,scene);
+      tm.diffuseColor = new BABYLON.Color3(Math.random()*0.7,Math.random()*0.7,Math.random()*0.7);
+      t.material = tm;
+      t.metadata = {speed: 0.5 + Math.random()*1.2};
+      traffic.push(t);
     }
   }
+  spawnTraffic();
+
+  // Thief (a piros cél-autó)
+  let thief = BABYLON.MeshBuilder.CreateBox('thief',{width:1.8,height:0.7,depth:3.3},scene);
+  thief.position = new BABYLON.Vector3(0,0.7, 100 + Math.random()*200);
+  const thMat = new BABYLON.StandardMaterial('thm',scene); thMat.diffuseColor = new BABYLON.Color3(0.8,0.1,0.1);
+  thief.material = thMat;
+
+  // Skybox-like simple effect
+  const skybox = BABYLON.MeshBuilder.CreateBox("skyBox",{size:1000.0},scene);
+  const skyMat = new BABYLON.StandardMaterial("skyMat", scene);
+  skyMat.backFaceCulling = false;
+  skyMat.diffuseColor = new BABYLON.Color3(0.6,0.8,1);
+  skyMat.specularColor = new BABYLON.Color3(0,0,0);
+  skybox.material = skyMat;
+
+  // Controls
+  scene.actionManager = new BABYLON.ActionManager(scene);
+  scene.onKeyboardObservable.add((kbInfo) => {
+    const key = kbInfo.event.key.toLowerCase();
+    if(kbInfo.type === BABYLON.KeyboardEventTypes.KEYDOWN) inputMap[key] = true;
+    if(kbInfo.type === BABYLON.KeyboardEventTypes.KEYUP) inputMap[key] = false;
+  });
+
+  // Follow camera position update
+  engine.runRenderLoop(() => {
+    // movement logic
+    const accel = (inputMap['arrowup'] || inputMap['w']) ? 0.06 : 0;
+    const brake = (inputMap['arrowdown'] || inputMap['s']) ? 0.12 : 0;
+    speed += accel;
+    speed -= brake;
+    speed = Math.max(0, Math.min(2.4, speed)); // clamp
+    speedDisplay.textContent = Math.round(speed*100);
+
+    // steering
+    if(inputMap['arrowleft'] || inputMap['a']) player.rotation.y -= 0.03 * (1 + speed);
+    if(inputMap['arrowright'] || inputMap['d']) player.rotation.y += 0.03 * (1 + speed);
+
+    // forward vector
+    const forward = new BABYLON.Vector3(Math.sin(player.rotation.y),0,Math.cos(player.rotation.y));
+    player.position.addInPlace(forward.scale(speed*1.8));
+
+    // move camera to follow
+    const camTarget = player.position.add(new BABYLON.Vector3(0,2,6).rotateByQuaternionToRef(BABYLON.Quaternion.FromEulerAngles(0,player.rotation.y,0), new BABYLON.Vector3()));
+    camera.position = player.position.add(new BABYLON.Vector3(0,4,-10).rotateByQuaternionToRef(BABYLON.Quaternion.FromEulerAngles(0,player.rotation.y,0), new BABYLON.Vector3()));
+    camera.setTarget(player.position.add(new BABYLON.Vector3(0,1.2,4)));
+
+    // move traffic towards negative z (toward player)
+    traffic.forEach(t=>{
+      t.position.z -= t.metadata.speed + speed*0.2;
+      if(t.position.z < -20){
+        t.position.z = 40 + Math.random()*300;
+        t.position.x = Math.random()*12-6;
+      }
+    });
+
+    // thief moves away slowly so you have to chase
+    thief.position.z -= 0.6 + Math.random()*0.3 - speed*0.1;
+    thief.position.x += Math.sin(Date.now()/500 + thief.position.z)*0.01;
+
+    // respawn thief if behind
+    if(thief.position.z < player.position.z - 30){
+      thief.position.z = player.position.z + 200 + Math.random()*200;
+      thief.position.x = Math.random()*8-4;
+    }
+
+    // check catch
+    const dist = BABYLON.Vector3.Distance(player.position, thief.position);
+    if(dist < 6){
+      score += 1;
+      scoreEl.textContent = score;
+      // teleport thief forward
+      thief.position.z = player.position.z + 200 + Math.random()*200;
+      thief.position.x = Math.random()*8-4;
+      // small visual feedback
+      const flash = BABYLON.MeshBuilder.CreateSphere('flash',{diameter:4},scene);
+      flash.position = player.position.add(new BABYLON.Vector3(0,1.6,2));
+      const fm = new BABYLON.StandardMaterial('fm',scene); fm.emissiveColor = new BABYLON.Color3(1,0.8,0.2);
+      flash.material = fm;
+      setTimeout(()=>{ flash.dispose(); }, 400);
+    }
+
+    scene.render();
+  });
+
+  window.addEventListener('resize', () => engine.resize());
+}
+
+/* End of script */
 </script>
 </body>
 </html>
